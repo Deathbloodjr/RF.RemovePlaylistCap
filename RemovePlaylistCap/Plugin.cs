@@ -4,16 +4,16 @@ using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
 using BepInEx.Configuration;
-using ModTemplate.Plugins;
+using RemovePlaylistCap.Plugins;
 using UnityEngine;
 using System.Collections;
 
-namespace ModTemplate
+namespace RemovePlaylistCap
 {
     [BepInPlugin(MyPluginInfo.PLUGIN_GUID, ModName, MyPluginInfo.PLUGIN_VERSION)]
     public class Plugin : BasePlugin
     {
-        public const string ModName = "ModTemplate";
+        public const string ModName = "RemovePlaylistCap";
 
         public static Plugin Instance;
         private Harmony _harmony = null;
@@ -65,9 +65,7 @@ namespace ModTemplate
             {
                 bool result = true;
                 // If any PatchFile fails, result will become false
-                result &= PatchFile(typeof(SwapJpEngTitlesPatch));
-                result &= PatchFile(typeof(AdjustUraFlipTimePatch));
-                SwapJpEngTitlesPatch.SetOverrideLanguages();
+                result &= PatchFile(typeof(RemovePlaylistCapPatch));
                 if (result)
                 {
                     Log.LogInfo($"Plugin {MyPluginInfo.PLUGIN_NAME} is loaded!");
@@ -75,8 +73,6 @@ namespace ModTemplate
                 else
                 {
                     Log.LogError($"Plugin {MyPluginInfo.PLUGIN_GUID} failed to load.");
-                    // Unload this instance of Harmony
-                    // I hope this works the way I think it does
                     _harmony.UnpatchSelf();
                 }
             }
