@@ -21,9 +21,11 @@ namespace RemovePlaylistCap
 
 
         public ConfigEntry<bool> ConfigEnabled;
-        public ConfigEntry<string> ConfigSongTitleLanguageOverride;
-        public ConfigEntry<float> ConfigFlipInterval;
-
+        public ConfigEntry<string> ConfigPlaylist1;
+        public ConfigEntry<string> ConfigPlaylist2;
+        public ConfigEntry<string> ConfigPlaylist3;
+        public ConfigEntry<string> ConfigPlaylist4;
+        public ConfigEntry<string> ConfigPlaylist5;
 
 
         public override void Load()
@@ -45,15 +47,30 @@ namespace RemovePlaylistCap
                 true,
                 "Enables the mod.");
 
-            ConfigSongTitleLanguageOverride = Config.Bind("General",
-                "SongTitleLanguageOverride",
-                "JP",
-                "Sets the song title to the selected language. (JP, EN, FR, IT, DE, ES, TW, CN, KO)");
+            ConfigPlaylist1 = Config.Bind("General",
+                "Playlist 1",
+                "Playlist 1",
+                "Playlist 1's new name.");
 
-            ConfigFlipInterval = Config.Bind("General",
-                "FlipInterval",
-                3f,
-                "How quickly the difficulty flips between oni and ura.");
+            ConfigPlaylist2 = Config.Bind("General",
+                "Playlist 2",
+                "Playlist 2",
+                "Playlist 2's new name.");
+
+            ConfigPlaylist3 = Config.Bind("General",
+                "Playlist 3",
+                "Playlist 3",
+                "Playlist 3's new name.");
+
+            ConfigPlaylist4 = Config.Bind("General",
+                "Playlist 4",
+                "Playlist 4",
+                "Playlist 4's new name.");
+
+            ConfigPlaylist5 = Config.Bind("General",
+                "Playlist 5",
+                "Playlist 5",
+                "Playlist 5's new name.");
         }
 
         private void SetupHarmony()
@@ -66,6 +83,7 @@ namespace RemovePlaylistCap
                 bool result = true;
                 // If any PatchFile fails, result will become false
                 result &= PatchFile(typeof(RemovePlaylistCapPatch));
+                result &= PatchFile(typeof(RenamePlaylistsPatch));
                 if (result)
                 {
                     Log.LogInfo($"Plugin {MyPluginInfo.PLUGIN_NAME} is loaded!");
