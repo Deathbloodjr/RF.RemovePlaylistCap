@@ -1,6 +1,7 @@
 # RF.RemovePlaylistCap
  A Rhythm Festival mod to remove the playlist cap of 100.\
- I don't see a real reason for this cap existing at all. It doesn't affect save file size or anything. 
+ I don't see a real reason for this cap existing at all. It doesn't affect save file size or anything.\
+ Also adds ability to rename playlists 1 through 5 from the config file. 
  
 # Requirements
  Visual Studio 2022 or newer\
@@ -8,7 +9,7 @@
  
 
 # Build
- Install [BepInEx be 697](https://builds.bepinex.dev/projects/bepinex_be) or [BepInEx 6.0.0-pre.2](https://github.com/BepInEx/BepInEx/releases/tag/v6.0.0-pre.2) into your Rhythm Festival directory and launch the game.\
+ Install [BepInEx 6.0.0-pre.2](https://github.com/BepInEx/BepInEx/releases/tag/v6.0.0-pre.2) into your Rhythm Festival directory and launch the game.\
  This will generate all the dummy dlls in the interop folder that will be used as references.\
  Make sure you install the Unity.IL2CPP-win-x64 version.\
  Newer versions of BepInEx could have breaking API changes until the first stable v6 release, so those are not recommended at this time.

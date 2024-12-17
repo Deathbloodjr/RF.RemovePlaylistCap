@@ -5,8 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <ModName>RemovePlaylistCap</ModName>
-    <ModVersion>0.0.1</ModVersion>
-    <Description>A Rhythm Festival mod to remove the playlist cap of 100. </Description>
+    <ModVersion>1.0.0</ModVersion>
+    <Description>A Rhythm Festival mod to remove the playlist cap of 100 and rename playlists. </Description>
   </PropertyGroup>
   
   <Target Name="UserFile" AfterTargets="PreBuildEvent">
