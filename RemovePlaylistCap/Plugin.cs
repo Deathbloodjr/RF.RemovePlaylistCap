@@ -7,6 +7,8 @@ using BepInEx.Configuration;
 using RemovePlaylistCap.Plugins;
 using UnityEngine;
 using System.Collections;
+using SaveProfileManager.Plugins;
+using System.Reflection;
 
 namespace RemovePlaylistCap
 {
@@ -34,40 +36,49 @@ namespace RemovePlaylistCap
 
             Log = base.Log;
 
-            SetupConfig();
+            SetupConfig(Config, Path.Combine("BepInEx", "data", ModName));
             SetupHarmony();
+
+            var isSaveManagerLoaded = IsSaveManagerLoaded();
+            if (isSaveManagerLoaded)
+            {
+                AddToSaveManager();
+            }
         }
 
-        private void SetupConfig()
+        private void SetupConfig(ConfigFile config, string saveFolder, bool isSaveManager = false)
         {
             var dataFolder = Path.Combine("BepInEx", "data", ModName);
 
-            ConfigEnabled = Config.Bind("General",
-                "Enabled",
-                true,
-                "Enables the mod.");
+            if (!isSaveManager)
+            {
+                ConfigEnabled = config.Bind("General",
+                   "Enabled",
+                   true,
+                   "Enables the mod.");
+            }
 
-            ConfigPlaylist1 = Config.Bind("General",
+            ConfigPlaylist1 = config.Bind("General",
                 "Playlist 1",
                 "Playlist 1",
                 "Playlist 1's new name.");
 
-            ConfigPlaylist2 = Config.Bind("General",
+            ConfigPlaylist2 = config.Bind("General",
                 "Playlist 2",
                 "Playlist 2",
                 "Playlist 2's new name.");
 
-            ConfigPlaylist3 = Config.Bind("General",
+            ConfigPlaylist3 = config.Bind("General",
                 "Playlist 3",
                 "Playlist 3",
                 "Playlist 3's new name.");
 
-            ConfigPlaylist4 = Config.Bind("General",
+            ConfigPlaylist4 = config.Bind("General",
                 "Playlist 4",
                 "Playlist 4",
                 "Playlist 4's new name.");
 
-            ConfigPlaylist5 = Config.Bind("General",
+            ConfigPlaylist5 = config.Bind("General",
                 "Playlist 5",
                 "Playlist 5",
                 "Playlist 5's new name.");
@@ -78,27 +89,33 @@ namespace RemovePlaylistCap
             // Patch methods
             _harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
 
-            if (ConfigEnabled.Value)
+            LoadPlugin(ConfigEnabled.Value);
+        }
+
+        public static void LoadPlugin(bool enabled)
+        {
+            if (enabled)
             {
                 bool result = true;
                 // If any PatchFile fails, result will become false
-                result &= PatchFile(typeof(RemovePlaylistCapPatch));
-                result &= PatchFile(typeof(RenamePlaylistsPatch));
+                result &= Instance.PatchFile(typeof(RemovePlaylistCapPatch));
+                result &= Instance.PatchFile(typeof(RenamePlaylistsPatch));
                 if (result)
                 {
-                    Log.LogInfo($"Plugin {MyPluginInfo.PLUGIN_NAME} is loaded!");
+                    Logger.Log($"Plugin {MyPluginInfo.PLUGIN_NAME} is loaded!");
                 }
                 else
                 {
-                    Log.LogError($"Plugin {MyPluginInfo.PLUGIN_GUID} failed to load.");
-                    _harmony.UnpatchSelf();
+                    Logger.Log($"Plugin {MyPluginInfo.PLUGIN_GUID} failed to load.", LogType.Error);
+                    Instance._harmony.UnpatchSelf();
                 }
             }
             else
             {
-                Log.LogInfo($"Plugin {MyPluginInfo.PLUGIN_NAME} is disabled.");
+                Logger.Log($"Plugin {MyPluginInfo.PLUGIN_NAME} is disabled.");
             }
         }
+
 
         private bool PatchFile(Type type)
         {
@@ -110,14 +127,60 @@ namespace RemovePlaylistCap
             {
                 _harmony.PatchAll(type);
 #if DEBUG
-                Log.LogInfo("File patched: " + type.FullName);
+                Logger.Log("File patched: " + type.FullName);
 #endif
                 return true;
             }
             catch (Exception e)
             {
-                Log.LogInfo("Failed to patch file: " + type.FullName);
-                Log.LogInfo(e.Message);
+                Logger.Log("Failed to patch file: " + type.FullName);
+                Logger.Log(e.Message);
+                return false;
+            }
+        }
+
+        public static void UnloadPlugin()
+        {
+            Instance._harmony.UnpatchSelf();
+            Logger.Log($"Plugin {MyPluginInfo.PLUGIN_NAME} has been unpatched.");
+        }
+
+        public static void ReloadPlugin()
+        {
+            // Reloading will always be completely different per mod
+            // You'll want to reload any config file or save data that may be specific per profile
+            // If there's nothing to reload, don't put anything here, and keep it commented in AddToSaveManager
+            //SwapSongLanguagesPatch.InitializeOverrideLanguages();
+            //TaikoSingletonMonoBehaviour<CommonObjects>.Instance.MyDataManager.MusicData.Reload();
+        }
+
+        public void AddToSaveManager()
+        {
+            // Add SaveDataManager dll path to your csproj.user file
+            // https://github.com/Deathbloodjr/RF.SaveProfileManager
+            var plugin = new PluginSaveDataInterface(MyPluginInfo.PLUGIN_GUID);
+            plugin.AssignLoadFunction(LoadPlugin);
+            plugin.AssignUnloadFunction(UnloadPlugin);
+
+            // Reloading will always be completely different per mod
+            // You'll want to reload any config file or save data that may be specific per profile
+            // If there's nothing to reload, don't put anything here, and keep it commented in AddToSaveManager
+            //plugin.AssignReloadSaveFunction(ReloadPlugin);
+
+            // Uncomment this if there are more config options than just ConfigEnabled
+            //plugin.AssignConfigSetupFunction(SetupConfig);
+            plugin.AddToManager(ConfigEnabled.Value);
+        }
+
+        private bool IsSaveManagerLoaded()
+        {
+            try
+            {
+                Assembly loadedAssembly = Assembly.Load("com.DB.RF.SaveProfileManager");
+                return loadedAssembly != null;
+            }
+            catch
+            {
                 return false;
             }
         }

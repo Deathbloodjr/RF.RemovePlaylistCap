@@ -10,8 +10,13 @@
   </PropertyGroup>
   
   <Target Name="UserFile" AfterTargets="PreBuildEvent">
-    <Copy Condition="!Exists('.\$(MSBuildProjectDir)\$(ModName).csproj.user')" SourceFiles="..\$(MSBuildProjectDir)\Resources\Template.csproj.user" DestinationFiles=".\$(MSBuildProjectDir)\$(ModName).csproj.user" />
-    <Error Condition="$(GameDir)==''" Text="Set the GameDir variable in .csproj.user file to your Rhythm Festival executable directory." />
+    <Copy
+      Condition="!Exists('.\$(MSBuildProjectDir)\$(ModName).csproj.user')"
+      SourceFiles="..\$(MSBuildProjectDir)\Resources\Template.csproj.user"
+      DestinationFiles=".\$(MSBuildProjectDir)\$(ModName).csproj.user"/>
+    <Error
+      Condition="$(GameDir)==''"
+      Text="Set the GameDir variable in .csproj.user file to your Rhythm Festival executable directory."/>
   </Target>
 
   <PropertyGroup>
@@ -28,6 +33,7 @@
   <ItemGroup>
     <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.697" />
     <Reference Include="$(GameDir)\BepInEx\interop\*.dll" Private="false" />
+    <Reference Include="$(SaveProfileManagerPath)" Private="false" />
     <PackageReference Include="BepInEx.Analyzers" Version="1.0.8" PrivateAssets="all" />
     <PackageReference Include="BepInEx.PluginInfoProps" Version="2.1.0" />
   </ItemGroup>
